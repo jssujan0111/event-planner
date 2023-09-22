@@ -1,0 +1,983 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/FSSUJAN0177/event-planner-API/1.0.0
+  - description: local host server
+    url: http://localhost:5000/api/v1/
+info:
+  version: "1.0.0"
+  title: Event Planner
+  description: this is a event planner API docs. By this documentation any one can understand my api endpoints.
+tags: 
+  - name: Auth
+    description: Authentication endpoints are available here (public)
+  - name: Event
+    description: Event endpoints are available here ( private ) 
+  - name: Guest
+    description: Guest list endpoints are availble here.( private )
+paths:
+  "/auth/register":
+    post:
+      operationId: auth
+      description: register to create a new account.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 40
+                  example: Mr Jon
+                email:
+                  type: string
+                  format: email
+                  example: jhon@gmail.com
+                password:
+                  type: string
+                  maxLength: 40
+                  example: 'jhon1234@'
+              required: [name,email,password]
+              # - name
+              # - email
+              # - password
+      responses:
+        '201':
+          description: register successful
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: register successfull
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                      links:
+                        type: object
+                        properties:
+                          self:
+                            type: string
+                            format: url
+                            example: /auth/register
+                          login:
+                            type: string
+                            format: url
+                            example: /auth/login
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  "/auth/login":
+    post:
+      description: Login to an existing account.
+      tags: [Auth]
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: jhon@gmail.com
+                password:
+                  type: string
+                  example: jhon123@
+              required: [email,password]
+      responses:
+        "200":
+          description: login successful.
+          content:
+            'applicaion/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: login successful
+                  data:
+                   type: object
+                   properties:
+                    access_token:
+                      type: string
+                      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url 
+                        example: '/auth/login'
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  "/events":
+    get:
+      security:
+        - bearerAuth: []
+      description: Retrive all the events.
+      tags: [Event]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortTypeParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/searchParam'
+      responses:
+        '200':
+          description: Retrive a list of events
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: int32
+                              example: 1
+                            title:
+                              type: string
+                              example: first event
+                            description:
+                              type: string
+                              example: event description
+                            date:
+                              type: string
+                              format: date
+                              example: '02-09-2023'
+                            time:
+                              type: string
+                              format: date
+                              example: '12:34'
+                            location:
+                              type: string
+                              example: Dhaka
+                            budget:
+                              type: number
+                              example: 0
+                            status:
+                              type: string
+                              enum: [pending,completed]
+                              default: pending
+                            link:
+                              type: string
+                              format: url
+                              example: '/events/64fb6b0d030342c0a7037786'
+                          required: [id,title,description]
+                        - $ref: '#/components/schemas/Timestamp' 
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: '/api/v1/events?page=1&limit=10&sort_type=asc&sort_by=updatedAt&search=title'
+                      next:
+                        type: string
+                        format: url
+                        example: '/api/v1/events?page=2&limit=10&sort_type=asc&sort_by=updatedAt&search=title'
+                      prev:
+                        type: string
+                        format: url
+                        example: '/api/v1/events?page=2&limit=10&sort_type=asc&sort_by=updatedAt&search=title'
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: int32
+                              example: 1
+                            title:
+                              type: string
+                              example: first event
+                            description:
+                              type: string
+                              example: event description
+                            date:
+                              type: string
+                              example: '02-09-2023'
+                            time:
+                              type: string
+                              example: '12:34'
+                            location:
+                              type: string
+                              example: Dhaka
+                            budget:
+                              type: number
+                              example: 0
+                            status:
+                              type: string
+                              enum: [pending,completed]
+                              default: pending
+                          required: [id,title,description]
+                        - $ref: '#/components/schemas/Timestamp' 
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      operationId: createEvents
+      security:
+        - bearerAuth: []
+      description: Create a new event.
+      tags: [Event]
+      requestBody:
+        description: to create an event user must provide valid data.
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: first event
+                description:
+                  type: string
+                  example: first event's description
+                date:
+                  type: string
+                  example: "02-09-2023"
+                time:
+                  type: string
+                  example: '1:08'
+                location:
+                  type: string
+                  example: Dhaka
+                budget:
+                  type: integer
+                  format: int32
+                  example: 0
+                  default: 0
+                status:
+                  type: string
+                  enum: [pending,completed]
+                  default: pending
+              required: [title,description,date,time,location]
+      responses:
+        '201':
+          description: successfully created new events
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: Event created successfully
+                  data:
+                    $ref: '#/components/schemas/Events'
+        '400':
+          $ref: '#/components/responses/400'
+  "/events/{eventId}":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get details of a single events.
+      tags: [Event]
+      responses:
+        '200':
+          description: Retrive a single event
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Events"
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /events/1
+                      guest:
+                        type: string
+                        format: url
+                        example: /events/1/guests
+        '400':
+          $ref: '#/components/responses/400'
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+    patch:
+      security:
+        - bearerAuth: []
+      description: Update an existing event.
+      tags: [Event]
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: first update event title
+                description:
+                  type: string
+                  example: first updated description
+                date:
+                  type: string
+                  example: '02-09-2023'
+                time:
+                  type: string
+                  example: '10:53'
+                location:
+                  type: string
+                  example: Dhaka
+                budget:
+                  type: integer
+                  format: int32
+                  example: 0
+                status:
+                  type: string
+                  enum: [pending,completed]
+                  default: pending
+      responses:
+        '200':
+          description: updated successfully
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: update successful
+                  data:
+                    $ref: '#/components/schemas/Events'
+        '400':
+          $ref: '#/components/responses/400'
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+    delete:
+      security:
+        - bearerAuth: []
+      description: Delete an existing Event.
+      tags: [Event]
+      responses:
+        '204':
+          description: Remove your event from your store
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: integer
+                        format: int32
+                        example: 204
+                      message:
+                        type: string
+                        example: Successfully remove your event
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+  "/events/{eventId}/guests":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get a list of all guest of a specific event.
+      tags: [Guest]
+      responses:
+        '200':
+          description: get a list of guests based on a specific event id...
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id: 
+                              type: integer
+                              format: int32
+                              example: 1
+                            name: 
+                              type: string
+                              example: jhon Doe
+                            email:
+                              type: string
+                              format: email
+                              example: user123@gmail.com
+                            phone:
+                              type: string
+                              example: '+8801712345678'
+                            invitationStatus:
+                              type: string
+                              enum: [sent,not_sent]
+                              default: not_sent
+                            RSVPs:
+                              type: string
+                              enum: [attending,not_attending,undecided]
+                              default: undecided
+                          required: [id,name,email,phone,invitationStatus,RSVPs]
+                        - $ref: '#/components/schemas/Timestamp'
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: '/events/2/guests'
+                      event:
+                        type: string
+                        format: url
+                        example: '/events/2'
+                      nextPage:
+                        type: string
+                        format: url
+                        example: '/events/2/guests?page=3&limit=10'
+                      prevPage:
+                        type: string
+                        format: url
+                        example: '/events/2/guests?page=1&limit=10'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortTypeParam'
+      - $ref: '#/components/parameters/sortByParam'
+      - $ref: '#/components/parameters/searchParam'
+    post:
+      security:
+        - bearerAuth: []
+      description: create a guest of a specific event
+      tags: [Guest]
+      requestBody:
+        description: to create a guest of a specific event usr must provide valid data.
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: jhon doe
+                email:
+                  type: string
+                  format: email
+                  example: user@gmail.com
+                phone:
+                  type: string
+                  example: '+8801712345678'
+                invitationStatus:
+                  type: string
+                  enum: [sent,not_sent]
+                  default: not_sent
+                RSVPs:
+                  type: string
+                  enum: [attending,not_attending,undecided]
+                  default: undecided
+              required: [name,email,phone]
+      responses:
+        '201':
+          description: guest created successfully
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: guest are added the event
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: int32
+                            example: 2
+                          name:
+                            type: string
+                            example: jhon doe
+                          email:
+                            type: string
+                            format: email
+                            example: 'user@gmail.com'
+                          phone:
+                            type: string
+                            example: '+8801712345678'
+                          invitationStaus:
+                            type: string
+                            enum: [sent,not_sent]
+                            default: not_sent
+                          RSVPs:
+                            type: string
+                            enum: [attending,not_attending,undecided]
+                            default: undecided
+                        required: [id,name,email]
+                      - $ref: '#/components/schemas/Timestamp'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: '/event/2/guests/2'
+                      event:
+                        type: string
+                        format: url
+                        example: '/event/2'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/500'
+        '500':
+          $ref: '#/components/responses/500'
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+  "/events/{eventId}/guests/{guestId}":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get Details of a single guest.
+      tags: [Guest]
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+      - $ref: '#/components/parameters/guestId'
+      responses:
+        '200':
+          description: Get details of a single guest of a specific event
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: int32
+                            example: 2
+                          name:
+                            type: string
+                            example: jhon doe
+                          email:
+                            type: string
+                            format: email
+                            example: 'user@gmail.com'
+                          phone:
+                            type: string
+                            example: '+8801712345678'
+                          invitationStaus:
+                            type: string
+                            enum: [sent,not_sent]
+                            default: not_sent
+                          RSVPs:
+                            type: string
+                            enum: [attending,not_attending,undecided]
+                            default: undecided
+                        required: [id,name,email]
+                      - $ref: '#/components/schemas/Timestamp'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: '/events/2/guests/3'
+                      event:
+                        type: string
+                        format: url
+                        example: '/events/2'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      security:
+        - bearerAuth: []
+      tags: [Guest]
+      description: update an existing guest
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+      - $ref: '#/components/parameters/guestId'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: jhon
+                email:
+                  type: string
+                  format: email
+                  example: user@gmail.com
+                phone:
+                  type: string
+                  example: '+880712345678'
+                invitationStatus:
+                  type: string
+                  enum: [sent,not_sent]
+                  default: not_sent
+                RSVPs:
+                  type: string
+                  enum: [attending,not_attending,undecided]
+                  default: undecided
+                
+      responses:
+        '200':
+          description: update successful
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 2
+                  message:
+                    type: string
+                    example: data updated successful
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: int32
+                            example: 2
+                          name:
+                            type: string
+                            example: jhon doe
+                          email:
+                            type: string
+                            format: email
+                            example: 'user@gmail.com'
+                          phone:
+                            type: string
+                            example: '+8801712345678'
+                          invitationStaus:
+                            type: string
+                            enum: [sent,not_sent]
+                            default: not_sent
+                          RSVPs:
+                            type: string
+                            enum: [attending,not_attending,undecided]
+                            default: undecided
+                        required: [id,name,email]
+                      - $ref: '#/components/schemas/Timestamp'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: '/events/2/guest/2'
+                        
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+      description: Remove an existing guest from the event
+      tags: [Guest]
+      parameters:
+      - $ref: '#/components/parameters/eventId'
+      - $ref: '#/components/parameters/guestId'
+      responses:
+        '204':
+          description: Successfully remove the guest from the event 
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 204
+                  message:
+                    type: string
+                    example: guest remove successfully.
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    '400':
+      description: Bad request
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 400
+              error:
+                type: string
+                example: Bad request
+              data:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Bad request with reason'
+                
+    '401':
+      description: UnAuthorized
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                format: int32
+                example: 401
+              error:
+                type: string
+                example:  Uathrized
+              message:
+                type: string
+                example: you haven't the right permission
+    "404":
+      description: Not Found
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 404
+              error:
+                type: string
+                example: Not found
+              data:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: your requested resource is not available.
+    '500':
+      description: Internal server error
+      content:
+        'applicaction/json':
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 500
+              error:
+                type: string
+                example: Internal server error
+              message:
+                type: string
+                example: Sorry! Something went wrong, try again later.
+  parameters:
+    pageParam:
+      in: query 
+      name: page
+      description: current page number
+      schema:
+        type: integer
+        format: int32
+        example: 1
+    limitParam:
+      in: query
+      name: limit
+      description: maximum items should be return
+      schema:
+        type: integer
+        format: int32
+        example: 10
+    sortTypeParam:
+      in: query
+      name: sort_type
+      description: type of sort (asc or dsc)
+      schema:
+        type: string
+        enum: [asc,desc]
+        example: asc
+    sortByParam:
+      in: query
+      name: sort_by
+      description: a sort key for sorting data
+      schema:
+        type: string
+        example: updatedAt
+    searchParam:
+      in: query
+      name: search
+      description: search term
+      schema:
+       type: string
+       example: title
+    eventId:
+      in: path
+      name: eventId
+      description: specific id of specific event
+      schema:
+        type: string
+        example: '64f983adae6ee25f1a449973'
+      required: true
+    guestId:
+      in: path
+      name: guestId
+      description: specific id of specific guest
+      schema:
+        type: string
+        example: '64fc1cf90376626998994547'
+      required: true
+  schemas:
+    Timestamp:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+    Events:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+              example: 1
+            title:
+              type: string
+              example: first event title
+            description: 
+              type: string
+              example: first event description
+            date:
+              type: string
+              example: '02-09-2023'
+            time:
+              type: string
+              example: '1:25'
+            location:
+              type: string
+              example: Dhaka
+            budget:
+              type: integer
+              example: 0
+            status:
+              type: string
+              enum: [pending,completed]
+              default: pending
+          required: [id,title,description,date,time,location,budget,status]
+        - $ref: '#/components/schemas/Timestamp'
+    pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          example: 2
+        limit:
+          type: integer
+          format: int32
+          example: 10
+        next:
+          type: integer
+          format: int32
+          example: 3
+        prev:
+          type: integer
+          format: int32
+          example: 1
+        totalPage:
+          type: integer
+          format: int32
+          example: 12
+        totalItems:
+          type: integer
+          format: int32
+          example: 50
+      required: [page,limit,totalPage]

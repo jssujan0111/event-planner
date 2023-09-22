@@ -46,7 +46,7 @@ I choose to build a web-based event planning application that allows users to or
 ### Installation
 1. Clone the repository
 ```bash
-   git clone https://github.com/
+   git clone https://github.com/jssujan0111/event-planner
 ```
 2. change the project directory
 ```bash
