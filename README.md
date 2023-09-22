@@ -74,11 +74,11 @@ I choose to build a web-based event planning application that allows users to or
 - JWT_REFRESH__TOKEN_SECRET
 8. to start application
 ```bash
-    npm start
+    npm run dev
 ```
 9. Access the application in your browser at
 ```bash
-    http://localhost:3000
+    http://localhost:5000
 ```
 ## Usage
 1. Register a user account or log in if you already have an account.
